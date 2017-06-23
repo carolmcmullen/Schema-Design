@@ -1,0 +1,506 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.1.24
+-- Dumped by pg_dump version 9.1.24
+-- Started on 2017-06-22 20:37:00
+
+SET statement_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TOC entry 10 (class 2615 OID 16545)
+-- Name: Schema-Design; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA "Schema-Design";
+
+
+ALTER SCHEMA "Schema-Design" OWNER TO postgres;
+
+SET search_path = "Schema-Design", pg_catalog;
+
+--
+-- TOC entry 192 (class 1255 OID 16716)
+-- Dependencies: 535 10
+-- Name: get_people(bigint, bigint); Type: FUNCTION; Schema: Schema-Design; Owner: postgres
+--
+
+CREATE FUNCTION get_people(interestid bigint, locationid bigint) RETURNS refcursor
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      ref refcursor;
+    BEGIN
+      OPEN ref FOR 
+SELECT 
+  person."firstName", 
+  person."lastName", 
+  person.age, 
+  person.id, 
+  person."locationId", 
+  "person_Interests".id, 
+  "person_Interests"."personId", 
+  "person_Interests"."interestId"
+FROM 
+  "Schema-Design".person, 
+  "Schema-Design"."person_Interests"
+WHERE 
+  person."locationId" = locationId
+AND 
+  "person_Interests"."interestId" = interestId;
+      RETURN ref;
+    END;
+    $$;
+
+
+ALTER FUNCTION "Schema-Design".get_people(interestid bigint, locationid bigint) OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 173 (class 1259 OID 16562)
+-- Dependencies: 10
+-- Name: interest; Type: TABLE; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE interest (
+    title text,
+    id bigint NOT NULL
+);
+
+
+ALTER TABLE "Schema-Design".interest OWNER TO postgres;
+
+--
+-- TOC entry 174 (class 1259 OID 16570)
+-- Dependencies: 10 173
+-- Name: interest_id_seq; Type: SEQUENCE; Schema: Schema-Design; Owner: postgres
+--
+
+CREATE SEQUENCE interest_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Schema-Design".interest_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 1927 (class 0 OID 0)
+-- Dependencies: 174
+-- Name: interest_id_seq; Type: SEQUENCE OWNED BY; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER SEQUENCE interest_id_seq OWNED BY interest.id;
+
+
+--
+-- TOC entry 172 (class 1259 OID 16554)
+-- Dependencies: 10
+-- Name: location; Type: TABLE; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE location (
+    city text,
+    state text,
+    country text,
+    id bigint NOT NULL
+);
+
+
+ALTER TABLE "Schema-Design".location OWNER TO postgres;
+
+--
+-- TOC entry 175 (class 1259 OID 16581)
+-- Dependencies: 10 172
+-- Name: location_id_seq; Type: SEQUENCE; Schema: Schema-Design; Owner: postgres
+--
+
+CREATE SEQUENCE location_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Schema-Design".location_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 1928 (class 0 OID 0)
+-- Dependencies: 175
+-- Name: location_id_seq; Type: SEQUENCE OWNED BY; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER SEQUENCE location_id_seq OWNED BY location.id;
+
+
+--
+-- TOC entry 171 (class 1259 OID 16546)
+-- Dependencies: 10
+-- Name: person; Type: TABLE; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE person (
+    "firstName" text,
+    "lastName" text,
+    age bigint,
+    id bigint NOT NULL,
+    "locationId" bigint
+);
+
+
+ALTER TABLE "Schema-Design".person OWNER TO postgres;
+
+--
+-- TOC entry 178 (class 1259 OID 16634)
+-- Dependencies: 10
+-- Name: person_Interests; Type: TABLE; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "person_Interests" (
+    "personId" bigint NOT NULL,
+    "interestId" bigint NOT NULL
+);
+
+
+ALTER TABLE "Schema-Design"."person_Interests" OWNER TO postgres;
+
+--
+-- TOC entry 179 (class 1259 OID 16661)
+-- Dependencies: 10 178
+-- Name: person_Interests_interestId_seq; Type: SEQUENCE; Schema: Schema-Design; Owner: postgres
+--
+
+CREATE SEQUENCE "person_Interests_interestId_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Schema-Design"."person_Interests_interestId_seq" OWNER TO postgres;
+
+--
+-- TOC entry 1929 (class 0 OID 0)
+-- Dependencies: 179
+-- Name: person_Interests_interestId_seq; Type: SEQUENCE OWNED BY; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER SEQUENCE "person_Interests_interestId_seq" OWNED BY "person_Interests"."interestId";
+
+
+--
+-- TOC entry 177 (class 1259 OID 16632)
+-- Dependencies: 178 10
+-- Name: person_Interests_personId_seq; Type: SEQUENCE; Schema: Schema-Design; Owner: postgres
+--
+
+CREATE SEQUENCE "person_Interests_personId_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Schema-Design"."person_Interests_personId_seq" OWNER TO postgres;
+
+--
+-- TOC entry 1930 (class 0 OID 0)
+-- Dependencies: 177
+-- Name: person_Interests_personId_seq; Type: SEQUENCE OWNED BY; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER SEQUENCE "person_Interests_personId_seq" OWNED BY "person_Interests"."personId";
+
+
+--
+-- TOC entry 176 (class 1259 OID 16592)
+-- Dependencies: 10 171
+-- Name: person_id_seq; Type: SEQUENCE; Schema: Schema-Design; Owner: postgres
+--
+
+CREATE SEQUENCE person_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Schema-Design".person_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 1931 (class 0 OID 0)
+-- Dependencies: 176
+-- Name: person_id_seq; Type: SEQUENCE OWNED BY; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER SEQUENCE person_id_seq OWNED BY person.id;
+
+
+--
+-- TOC entry 1796 (class 2604 OID 16572)
+-- Dependencies: 174 173
+-- Name: id; Type: DEFAULT; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER TABLE ONLY interest ALTER COLUMN id SET DEFAULT nextval('interest_id_seq'::regclass);
+
+
+--
+-- TOC entry 1795 (class 2604 OID 16583)
+-- Dependencies: 175 172
+-- Name: id; Type: DEFAULT; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER TABLE ONLY location ALTER COLUMN id SET DEFAULT nextval('location_id_seq'::regclass);
+
+
+--
+-- TOC entry 1794 (class 2604 OID 16594)
+-- Dependencies: 176 171
+-- Name: id; Type: DEFAULT; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER TABLE ONLY person ALTER COLUMN id SET DEFAULT nextval('person_id_seq'::regclass);
+
+
+--
+-- TOC entry 1797 (class 2604 OID 16638)
+-- Dependencies: 177 178 178
+-- Name: personId; Type: DEFAULT; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER TABLE ONLY "person_Interests" ALTER COLUMN "personId" SET DEFAULT nextval('"person_Interests_personId_seq"'::regclass);
+
+
+--
+-- TOC entry 1798 (class 2604 OID 16663)
+-- Dependencies: 179 178
+-- Name: interestId; Type: DEFAULT; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER TABLE ONLY "person_Interests" ALTER COLUMN "interestId" SET DEFAULT nextval('"person_Interests_interestId_seq"'::regclass);
+
+
+--
+-- TOC entry 1916 (class 0 OID 16562)
+-- Dependencies: 173 1923
+-- Data for Name: interest; Type: TABLE DATA; Schema: Schema-Design; Owner: postgres
+--
+
+COPY interest (title, id) FROM stdin;
+golf	0
+basketball	1
+soccer	2
+baseball	3
+comics	4
+running	5
+\.
+
+
+--
+-- TOC entry 1932 (class 0 OID 0)
+-- Dependencies: 174
+-- Name: interest_id_seq; Type: SEQUENCE SET; Schema: Schema-Design; Owner: postgres
+--
+
+SELECT pg_catalog.setval('interest_id_seq', 1, false);
+
+
+--
+-- TOC entry 1915 (class 0 OID 16554)
+-- Dependencies: 172 1923
+-- Data for Name: location; Type: TABLE DATA; Schema: Schema-Design; Owner: postgres
+--
+
+COPY location (city, state, country, id) FROM stdin;
+Memphis	TN	USA	0
+Alvarado	TX	USA	1
+Olive Branch	MS	USA	2
+Atlanta	GA	USA	3
+Dallas	TX	USA	4
+Seattle	WA	USA	5
+\.
+
+
+--
+-- TOC entry 1933 (class 0 OID 0)
+-- Dependencies: 175
+-- Name: location_id_seq; Type: SEQUENCE SET; Schema: Schema-Design; Owner: postgres
+--
+
+SELECT pg_catalog.setval('location_id_seq', 1, false);
+
+
+--
+-- TOC entry 1914 (class 0 OID 16546)
+-- Dependencies: 171 1923
+-- Data for Name: person; Type: TABLE DATA; Schema: Schema-Design; Owner: postgres
+--
+
+COPY person ("firstName", "lastName", age, id, "locationId") FROM stdin;
+Carol	McMullen	28	0	0
+Dion	McMullen	34	1	0
+Logan	Xavier	3	2	0
+Alexa	Nichole	9	3	0
+John	Doe	25	5	1
+Tim	Jones	18	4	2
+\.
+
+
+--
+-- TOC entry 1921 (class 0 OID 16634)
+-- Dependencies: 178 1923
+-- Data for Name: person_Interests; Type: TABLE DATA; Schema: Schema-Design; Owner: postgres
+--
+
+COPY "person_Interests" ("personId", "interestId") FROM stdin;
+0	0
+0	1
+0	2
+\.
+
+
+--
+-- TOC entry 1934 (class 0 OID 0)
+-- Dependencies: 179
+-- Name: person_Interests_interestId_seq; Type: SEQUENCE SET; Schema: Schema-Design; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"person_Interests_interestId_seq"', 1, false);
+
+
+--
+-- TOC entry 1935 (class 0 OID 0)
+-- Dependencies: 177
+-- Name: person_Interests_personId_seq; Type: SEQUENCE SET; Schema: Schema-Design; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"person_Interests_personId_seq"', 1, false);
+
+
+--
+-- TOC entry 1936 (class 0 OID 0)
+-- Dependencies: 176
+-- Name: person_id_seq; Type: SEQUENCE SET; Schema: Schema-Design; Owner: postgres
+--
+
+SELECT pg_catalog.setval('person_id_seq', 1, false);
+
+
+--
+-- TOC entry 1805 (class 2606 OID 16580)
+-- Dependencies: 173 173 1924
+-- Name: interest_pk; Type: CONSTRAINT; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY interest
+    ADD CONSTRAINT interest_pk PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1803 (class 2606 OID 16591)
+-- Dependencies: 172 172 1924
+-- Name: location_pk; Type: CONSTRAINT; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY location
+    ADD CONSTRAINT location_pk PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1809 (class 2606 OID 16721)
+-- Dependencies: 178 178 178 1924
+-- Name: person_Interests_pk; Type: CONSTRAINT; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "person_Interests"
+    ADD CONSTRAINT "person_Interests_pk" PRIMARY KEY ("personId", "interestId");
+
+
+--
+-- TOC entry 1801 (class 2606 OID 16602)
+-- Dependencies: 171 171 1924
+-- Name: person_pk; Type: CONSTRAINT; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY person
+    ADD CONSTRAINT person_pk PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1806 (class 1259 OID 16691)
+-- Dependencies: 178 1924
+-- Name: fki_interestId_fk; Type: INDEX; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX "fki_interestId_fk" ON "person_Interests" USING btree ("interestId");
+
+
+--
+-- TOC entry 1799 (class 1259 OID 16712)
+-- Dependencies: 171 1924
+-- Name: fki_locationId_fk; Type: INDEX; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX "fki_locationId_fk" ON person USING btree ("locationId");
+
+
+--
+-- TOC entry 1807 (class 1259 OID 16685)
+-- Dependencies: 178 1924
+-- Name: fki_personId_fk; Type: INDEX; Schema: Schema-Design; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX "fki_personId_fk" ON "person_Interests" USING btree ("personId");
+
+
+--
+-- TOC entry 1811 (class 2606 OID 16686)
+-- Dependencies: 178 173 1804 1924
+-- Name: interestId_fk; Type: FK CONSTRAINT; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER TABLE ONLY "person_Interests"
+    ADD CONSTRAINT "interestId_fk" FOREIGN KEY ("interestId") REFERENCES interest(id);
+
+
+--
+-- TOC entry 1810 (class 2606 OID 16707)
+-- Dependencies: 171 172 1802 1924
+-- Name: locationId_fk; Type: FK CONSTRAINT; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER TABLE ONLY person
+    ADD CONSTRAINT "locationId_fk" FOREIGN KEY ("locationId") REFERENCES location(id);
+
+
+--
+-- TOC entry 1812 (class 2606 OID 16692)
+-- Dependencies: 178 1800 171 1924
+-- Name: personId_fk; Type: FK CONSTRAINT; Schema: Schema-Design; Owner: postgres
+--
+
+ALTER TABLE ONLY "person_Interests"
+    ADD CONSTRAINT "personId_fk" FOREIGN KEY ("personId") REFERENCES person(id);
+
+
+-- Completed on 2017-06-22 20:37:00
+
+--
+-- PostgreSQL database dump complete
+--
+
